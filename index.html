@@ -169,32 +169,6 @@
   </div>
 
   <div class="section">
-    <h2>Observed Implementation</h2>
-    <p>During the course of this research, an open-source OpenClaw plugin called <strong>Aristotle</strong> was identified as the first publicly available tool to explicitly address memory conduction as a distinct operational concern. Its architecture provided a working demonstration of conduction-layer intervention in a production agent system, and its measured results informed several conclusions in this framework.</p>
-    <p>Aristotle implements four components that map directly to the failure modes documented above:</p>
-    <div class="component-grid">
-      <div class="component">
-        <div class="component-name">Guard</div>
-        <p>Write protection via the <code>before_tool_call</code> plugin hook. Intercepts destructive tool calls and returns corrective instructions rather than blocking the agent. 10 redirect rules.</p>
-      </div>
-      <div class="component">
-        <div class="component-name">Context Shield</div>
-        <p>Monitors context window pressure from session transcripts. Acts at 65% capacity — before emergency compaction triggers at 95%+.</p>
-      </div>
-      <div class="component">
-        <div class="component-name">Boot Card</div>
-        <p>Reads all bootstrap files once at session start, produces a ~20-line summary carried for the remainder of the session. Reduces per-turn token usage from 262K to under 12K.</p>
-      </div>
-      <div class="component">
-        <div class="component-name">QC Nightly</div>
-        <p>11 automated integrity checks in an isolated session. Reports generated deterministically in code, not by the AI model. Silence indicates all checks passed.</p>
-      </div>
-    </div>
-    <p>Observed conduction reliability in this system: 90–92%. The remaining 8–10% involves model behaviors that cannot be enforced through deterministic code (post-compaction identity verification, confabulation prevention, correction acceptance).</p>
-    <p>Aristotle operates alongside storage plugins rather than replacing them. Compatible with mem0, lancedb, QMD, Cognee, Graphiti, and Lossless Claw. MIT licensed. No paid tiers.</p>
-  </div>
-
-  <div class="section">
     <h2>Map of Agentic Memory Flow</h2>
     <p>The following diagram illustrates how memory moves through the three-layer taxonomy — from storage through conduction into the agent's working context — and where each failure mode disrupts the pathway.</p>
     <a href="/map" class="map-preview">
@@ -247,8 +221,6 @@
     <ul class="ext-links">
       <li><a href="/whitepaper">Whitepaper: Memory Conduction Research</a> <span class="label">Full research paper</span></li>
       <li><a href="/map">Map of Agentic Memory Flow</a> <span class="label">Interactive diagnostic map</span></li>
-      <li><a href="https://github.com/aristotle-agent/aristotle">Aristotle — Reference Implementation</a> <span class="label">GitHub</span></li>
-      <li><a href="https://github.com/aristotle-agent/aristotle/discussions">Community Discussion</a> <span class="label">GitHub Discussions</span></li>
     </ul>
   </div>
 

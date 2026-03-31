@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memory Conduction: The Missing Layer in Autonomous Agent Memory Architecture</title>
 <meta name="description" content="A formal classification of memory conduction failures in AI agent systems. Five documented failure modes, architectural analysis, the Memory Redirect pattern, and a reference implementation.">
-<meta name="keywords" content="memory conduction, OpenClaw, agent memory, agent amnesia, memory protection, compaction, write corruption, confabulation, Aristotle, AI agent">
+<meta name="keywords" content="memory conduction, OpenClaw, agent memory, agent amnesia, memory protection, compaction, write corruption, confabulation, AI agent">
 <meta name="author" content="Memory Conduction Research">
 <meta name="google-site-verification" content="KorakoxGzGDUJADRRCyJPlviFmh8iU5tmTtLYq4-En8" />
 <link rel="canonical" href="https://memoryconduction.com/whitepaper">
@@ -185,33 +185,7 @@ Spawn sub-agent bare       →  "Read continuity file first. Include context."</
 </section>
 
 <section>
-  <h2><span class="section-num">6.</span> Reference Implementation</h2>
-  <p>Aristotle is an open-source OpenClaw plugin (MIT licensed) that implements four conduction components:</p>
-  <table>
-    <thead>
-      <tr><th>Component</th><th>Function</th><th>Mechanism</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><strong>Guard</strong></td><td>Write protection</td><td>10 redirect rules on <code>before_tool_call</code> hook</td></tr>
-      <tr><td><strong>Context Shield</strong></td><td>Context pressure management</td><td>Session JSONL transcript monitoring via three detection methods: ContextEngine API, JSONL parsing, tool-call estimation</td></tr>
-      <tr><td><strong>Boot Card</strong></td><td>Efficient context carry</td><td>Full file read at session initialization → ~20-line summary → summary carried for session duration</td></tr>
-      <tr><td><strong>QC Nightly</strong></td><td>Conduction integrity verification</td><td>11 automated checks executed in an isolated session; deterministic code-generated reports (not model-formatted)</td></tr>
-    </tbody>
-  </table>
-  <p>Four automated overnight processes maintain conduction across the daily session boundary: pre-reset checkpoint (03:30), continuity update (22:45), QC checks (23:15), and report delivery (23:20).</p>
-  <p><strong>Measured results:</strong></p>
-  <ul>
-    <li>Per-turn token consumption: 262,144 → under 12,000</li>
-    <li>Conduction reliability: approximately 90–92%</li>
-    <li>Residual 8–10%: detected by nightly QC or addressed by operating file rules</li>
-  </ul>
-  <p><strong>Acknowledged limitations.</strong> Three agent behaviors cannot be enforced through deterministic code: post-compaction identity verification, confabulation prevention, and correction acceptance. These depend on the language model's behavioral tendencies. Code controls what the agent does. It does not control what the agent infers.</p>
-  <p>The implementation comprises approximately 3,000 lines of TypeScript across 11 files.</p>
-  <p>Source: <a href="https://github.com/aristotle-agent/aristotle">github.com/aristotle-agent/aristotle</a></p>
-</section>
-
-<section>
-  <h2><span class="section-num">7.</span> Relationship to Existing Systems</h2>
+  <h2><span class="section-num">6.</span> Relationship to Existing Systems</h2>
   <p>The conduction layer is designed to complement storage and retrieval systems, not to supplant them.</p>
   <ul>
     <li><strong>With Lossless Claw:</strong> The conduction layer reduces compaction pressure. Lossless Claw renders compaction lossless when it occurs. Together, no information is lost.</li>
@@ -222,7 +196,7 @@ Spawn sub-agent bare       →  "Read continuity file first. Include context."</
 </section>
 
 <section>
-  <h2><span class="section-num">8.</span> Open Questions</h2>
+  <h2><span class="section-num">7.</span> Open Questions</h2>
   <p>Several areas warrant further investigation:</p>
   <ol>
     <li><strong>Conduction in multi-agent systems.</strong> When agents delegate to sub-agents, how is context conducted across the delegation boundary? The current reference implementation handles this through continuity files, but the pattern may require formalization as multi-agent architectures become more prevalent.</li>
@@ -233,7 +207,7 @@ Spawn sub-agent bare       →  "Read continuity file first. Include context."</
 </section>
 
 <section>
-  <h2><span class="section-num">9.</span> Proposed Taxonomy</h2>
+  <h2><span class="section-num">8.</span> Proposed Taxonomy</h2>
   <p>We propose a three-layer taxonomy for agent memory:</p>
   <ul>
     <li><strong>Layer 1: Storage</strong> — where memories are created, indexed, and persisted. A mature ecosystem with multiple high-quality implementations.</li>
@@ -243,32 +217,13 @@ Spawn sub-agent bare       →  "Read continuity file first. Include context."</
 </section>
 
 <section>
-  <h2><span class="section-num">10.</span> Conclusion</h2>
+  <h2><span class="section-num">9.</span> Conclusion</h2>
   <p>The OpenClaw community has produced excellent solutions for memory storage and retrieval. The question of whether stored memories survive contact with the agent's own operations — memory conduction — has remained largely unaddressed as a formal category.</p>
   <p>This paper proposes that the ecosystem requires a dedicated Layer 2 between storage and retrieval. We offer the term "memory conduction," a five-mode failure classification grounded in community evidence, the Memory Redirect pattern as an architectural approach, and a reference implementation as initial contributions.</p>
   <p>The category requires multiple solutions. We anticipate and welcome alternative conduction architectures with different design trade-offs and implementation strategies. The terminology belongs to the community. The problem belongs to every practitioner who has encountered a non-functional agent despite having intact storage.</p>
   <p>The battery was never the problem. The conductor was.</p>
 </section>
 
-<section>
-  <h2><span class="section-num">11.</span> Observed Implementation</h2>
-  <p>During the course of this research, an open-source OpenClaw plugin called <strong>Aristotle</strong> was identified as the first publicly available tool to explicitly address memory conduction as a distinct operational concern. Its architecture provided a working demonstration of conduction-layer intervention in a production agent system, and its measured results informed several conclusions presented in this paper.</p>
-  <p>Aristotle implements four components that map directly to the failure modes classified in Section 3:</p>
-  <table>
-    <thead>
-      <tr><th>Component</th><th>Function</th><th>Mechanism</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><strong>Guard</strong></td><td>Write protection</td><td>10 redirect rules on <code>before_tool_call</code> hook. Returns corrective instructions rather than blocking.</td></tr>
-      <tr><td><strong>Context Shield</strong></td><td>Context pressure management</td><td>Session JSONL transcript monitoring. Acts at 65% capacity — before emergency compaction at 95%+.</td></tr>
-      <tr><td><strong>Boot Card</strong></td><td>Efficient context carry</td><td>Full file read at session initialization → ~20-line summary → carried for session duration. 262K → under 12K tokens.</td></tr>
-      <tr><td><strong>QC Nightly</strong></td><td>Conduction integrity verification</td><td>11 automated checks in isolated session. Deterministic code-generated reports (not model-formatted).</td></tr>
-    </tbody>
-  </table>
-  <p><strong>Observed results:</strong> Per-turn token consumption decreased from 262,144 to under 12,000. Conduction reliability measured at approximately 90–92%. The residual 8–10% involves model behaviors that cannot be enforced through deterministic code.</p>
-  <p>Aristotle operates alongside storage plugins rather than replacing them. Compatible with mem0, lancedb, QMD, Cognee, Graphiti, and Lossless Claw. MIT licensed. No paid tiers.</p>
-  <p>Source: <a href="https://github.com/aristotle-agent/aristotle">github.com/aristotle-agent/aristotle</a></p>
-</section>
 
 </div>
 

@@ -234,32 +234,6 @@
     <p>Most failures attributed to "bad memory" are conduction failures occurring at Steps 2–7. The storage at Step 1 is typically intact.</p>
   </div>
 
-  <!-- OBSERVED IMPLEMENTATION -->
-  <div class="section">
-    <h2>Observed Implementation</h2>
-    <p>The failure-to-fix mapping above was documented through observation of <strong>Aristotle</strong>, an open-source OpenClaw plugin identified as the first publicly available tool to explicitly address memory conduction as a distinct operational concern. Its component architecture provided the empirical basis for the diagnostic framework presented in this map.</p>
-    <p>Aristotle implements four core components corresponding to the failure modes above:</p>
-    <div class="component-grid">
-      <div class="component-card">
-        <div class="component-name">Guard</div>
-        <p>Write protection via <code>before_tool_call</code> hook. Intercepts destructive tool calls and returns corrective instructions. 10 redirect rules.</p>
-      </div>
-      <div class="component-card">
-        <div class="component-name">Context Shield</div>
-        <p>Monitors context window pressure from session transcripts. Acts at 65% capacity — before emergency compaction triggers at 95%+.</p>
-      </div>
-      <div class="component-card">
-        <div class="component-name">Boot Card</div>
-        <p>Reads all bootstrap files once at session start, produces a ~20-line summary carried for the session. 262K → under 12K tokens per turn.</p>
-      </div>
-      <div class="component-card">
-        <div class="component-name">QC Nightly</div>
-        <p>11 automated integrity checks in an isolated session. Reports generated deterministically in code, not by the AI model.</p>
-      </div>
-    </div>
-    <p>Observed conduction reliability: 90–92%. Compatible with mem0, lancedb, QMD, Cognee, Graphiti, and Lossless Claw. MIT licensed. No paid tiers.</p>
-    <p>Source: <a href="https://github.com/aristotle-agent/aristotle">github.com/aristotle-agent/aristotle</a></p>
-  </div>
 
 </div>
 
