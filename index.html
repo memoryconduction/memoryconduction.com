@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memory Conduction — Definition, Failure Modes, and Solutions for AI Agent Memory</title>
 <meta name="description" content="Memory conduction is the sustained, protected pathway through which an AI agent accesses its own memories without degrading or destroying them through normal use. Definition, taxonomy, and reference implementation.">
-<meta name="keywords" content="memory conduction, OpenClaw, agent memory, agent amnesia, memory protection, compaction, Aristotle, AI agent">
-<meta name="author" content="Aristotle Project">
+<meta name="keywords" content="memory conduction, OpenClaw, agent memory, agent amnesia, memory protection, compaction, AI agent">
+<meta name="author" content="Memory Conduction Research">
 <meta name="google-site-verification" content="KorakoxGzGDUJADRRCyJPlviFmh8iU5tmTtLYq4-En8" />
 <link rel="canonical" href="https://memoryconduction.com/">
 <meta property="og:title" content="Memory Conduction — AI Agent Memory Taxonomy">
@@ -18,7 +17,7 @@
 <meta name="twitter:title" content="Memory Conduction — AI Agent Memory Taxonomy">
 <meta name="twitter:description" content="The sustained, protected pathway through which an AI agent accesses its own memories without degrading or destroying them through normal use.">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is memory conduction?","acceptedAnswer":{"@type":"Answer","text":"Memory conduction is the sustained, protected pathway through which an AI agent accesses its own memories without degrading or destroying them through normal use. It is distinct from memory storage (where memories are saved) and memory retrieval (how memories are found). Conduction failures occur when an agent operationally destroys its own memory through normal, non-malicious tool use. Agent amnesia is the commonly described symptom of memory conduction failure in the OpenClaw community."}},{"@type":"Question","name":"What is the difference between memory storage and memory conduction?","acceptedAnswer":{"@type":"Answer","text":"Memory storage addresses where memories are created, indexed, and persisted. Memory conduction addresses whether those memories survive contact with the agent's own operations. Both can cause agent amnesia, but they require different solutions. Storage is addressed by tools such as lancedb, mem0, cognee, QMD, and Graphiti. Conduction is addressed by write protection, context pressure management, efficient carry mechanisms, and nightly integrity verification."}},{"@type":"Question","name":"What causes memory conduction failures?","acceptedAnswer":{"@type":"Answer","text":"Five documented failure modes: (1) Write Corruption — the agent overwrites memory files with abbreviated content. (2) Context Overload — the agent re-reads full files on every message, triggering emergency compaction. (3) Compaction Casualty — lossy compression destroys critical context. (4) Bootstrap Truncation — files exceeding platform limits are silently cut. (5) Post-Compaction Confabulation — the agent fabricates context rather than acknowledging memory loss."}},{"@type":"Question","name":"What is Aristotle?","acceptedAnswer":{"@type":"Answer","text":"Aristotle is an open-source OpenClaw plugin and the reference implementation for memory conduction. It provides Guard (write protection), Context Shield (context pressure monitoring), Boot Card (read-once summarization reducing tokens from 262K to under 12K), and QC Nightly (11 automated integrity checks). MIT licensed with no paid tiers."}}]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is memory conduction?","acceptedAnswer":{"@type":"Answer","text":"Memory conduction is the sustained, protected pathway through which an AI agent accesses its own memories without degrading or destroying them through normal use. It is distinct from memory storage (where memories are saved) and memory retrieval (how memories are found). Conduction failures occur when an agent operationally destroys its own memory through normal, non-malicious tool use. Agent amnesia is the commonly described symptom of memory conduction failure in the OpenClaw community."}},{"@type":"Question","name":"What is the difference between memory storage and memory conduction?","acceptedAnswer":{"@type":"Answer","text":"Memory storage addresses where memories are created, indexed, and persisted. Memory conduction addresses whether those memories survive contact with the agent's own operations. Both can cause agent amnesia, but they require different solutions. Storage is addressed by tools such as lancedb, mem0, cognee, QMD, and Graphiti. Conduction is addressed by write protection, context pressure management, efficient carry mechanisms, and nightly integrity verification."}},{"@type":"Question","name":"What causes memory conduction failures?","acceptedAnswer":{"@type":"Answer","text":"Five documented failure modes: (1) Write Corruption — the agent overwrites memory files with abbreviated content. (2) Context Overload — the agent re-reads full files on every message, triggering emergency compaction. (3) Compaction Casualty — lossy compression destroys critical context. (4) Bootstrap Truncation — files exceeding platform limits are silently cut. (5) Post-Compaction Confabulation — the agent fabricates context rather than acknowledging memory loss."}}]}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"DefinedTerm","name":"Memory Conduction","description":"The sustained, protected pathway through which an AI agent accesses its own memories without degrading or destroying them through normal use.","inDefinedTermSet":{"@type":"DefinedTermSet","name":"AI Agent Memory Taxonomy"}}
@@ -28,7 +27,19 @@
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{--bg:#fafaf8;--surface:#fff;--border:#e2e0da;--border-light:#eeece6;--text:#1a1a18;--text-secondary:#52514c;--text-tertiary:#8a8880;--accent:#2a5a8c;--accent-light:#eef3f8;--tag-bg:#f0ece4;--tag-text:#6b6760;--font-serif:'Source Serif 4',Georgia,serif;--font-sans:'Source Sans 3',-apple-system,sans-serif;--font-mono:'Source Code Pro',monospace}
   body{background:var(--bg);color:var(--text);font-family:var(--font-serif);font-size:18px;line-height:1.8;-webkit-font-smoothing:antialiased}
-  header{max-width:700px;margin:0 auto;padding:60px 24px 40px;border-bottom:1px solid var(--border)}
+
+  /* --- NAV --- */
+  .nav-bar{position:fixed;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid var(--border-light);z-index:100;padding:0 24px;height:48px;display:flex;align-items:center;justify-content:space-between;max-width:100%}
+  .nav-logo{font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--text);text-decoration:none;letter-spacing:-0.01em}
+  .nav-logo:hover{text-decoration:none}
+  .hamburger{background:none;border:none;cursor:pointer;padding:8px;display:flex;flex-direction:column;gap:4px}
+  .hamburger span{display:block;width:20px;height:2px;background:var(--text)}
+  .nav-menu{display:none;position:fixed;top:48px;right:0;background:var(--surface);border:1px solid var(--border);border-radius:0 0 0 8px;padding:8px 0;min-width:220px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+  .nav-menu.open{display:block}
+  .nav-menu a{display:block;padding:10px 24px;font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);text-decoration:none}
+  .nav-menu a:hover{background:var(--accent-light);color:var(--text);text-decoration:none}
+
+  header{max-width:700px;margin:0 auto;padding:100px 24px 40px;border-bottom:1px solid var(--border)}
   header h1{font-family:var(--font-serif);font-size:36px;font-weight:600;color:var(--text);line-height:1.2;margin-bottom:16px;letter-spacing:-0.01em}
   .definition{font-size:19px;color:var(--text-secondary);font-weight:300;font-style:italic;line-height:1.6;margin-bottom:16px}
   .symptom-note{font-family:var(--font-sans);font-size:14px;color:var(--text-tertiary);line-height:1.5}
@@ -57,16 +68,39 @@
   .component p{font-family:var(--font-sans);font-size:14px;color:var(--text-secondary);line-height:1.5;margin-bottom:0}
   a{color:var(--accent);text-decoration:none}
   a:hover{text-decoration:underline}
-  footer{max-width:700px;margin:0 auto;padding:40px 24px 60px;border-top:1px solid var(--border)}
-  footer p{font-family:var(--font-sans);font-size:13px;color:var(--text-tertiary);margin-bottom:6px;line-height:1.6}
-  footer a{color:var(--text-secondary)}
   .ext-links{margin:20px 0 0;padding:0;list-style:none;font-family:var(--font-sans);font-size:15px}
   .ext-links li{margin-bottom:8px}
   .ext-links .label{color:var(--text-tertiary);font-size:13px}
   code{font-family:var(--font-mono);font-size:14px;background:var(--tag-bg);padding:1px 5px;border-radius:3px}
+
+  /* --- MAP PREVIEW --- */
+  .map-preview{display:block;margin:24px 0;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:border-color 0.2s,box-shadow 0.2s;cursor:pointer}
+  .map-preview:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(42,90,140,0.08);text-decoration:none}
+  .map-svg{width:100%;max-width:600px;margin:0 auto 20px;display:block}
+  .map-caption{font-family:var(--font-sans);font-size:14px;color:var(--accent);text-align:center;font-weight:500}
+
+  /* --- FOOTER --- */
+  footer{max-width:700px;margin:0 auto;padding:40px 24px 60px;border-top:2px solid var(--border)}
+  footer .contact-line{font-family:var(--font-sans);font-size:17px;color:var(--text);margin-bottom:20px;font-weight:500;text-align:center}
+  footer .contact-line a{color:var(--accent);font-weight:600;font-size:17px}
+  footer p{font-family:var(--font-sans);font-size:13px;color:var(--text-tertiary);margin-bottom:6px;line-height:1.6;text-align:center}
+  footer a{color:var(--text-secondary)}
 </style>
 </head>
 <body>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <a href="/" class="nav-logo">Memory Conduction</a>
+  <button class="hamburger" onclick="document.querySelector('.nav-menu').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-menu">
+    <a href="/">Research</a>
+    <a href="/framework">Map of Agentic Memory</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
 
 <header>
   <h1>Memory Conduction</h1>
@@ -128,12 +162,13 @@
   </div>
 
   <div class="section">
-    <h2>Reference Implementation</h2>
-    <p><strong>Aristotle</strong> is an open-source OpenClaw plugin that serves as the reference implementation for memory conduction. It provides four components corresponding to the identified failure modes:</p>
+    <h2>Observed Implementation</h2>
+    <p>During the course of this research, an open-source OpenClaw plugin called <strong>Aristotle</strong> was identified as the first publicly available tool to explicitly address memory conduction as a distinct operational concern. Its architecture provided a working demonstration of conduction-layer intervention in a production agent system, and its measured results informed several conclusions in this framework.</p>
+    <p>Aristotle implements four components that map directly to the failure modes documented above:</p>
     <div class="component-grid">
       <div class="component">
         <div class="component-name">Guard</div>
-        <p>Write protection via the <code>before_tool_call</code> plugin hook. Intercepts destructive tool calls and returns corrective instructions. 10 redirect rules.</p>
+        <p>Write protection via the <code>before_tool_call</code> plugin hook. Intercepts destructive tool calls and returns corrective instructions rather than blocking the agent. 10 redirect rules.</p>
       </div>
       <div class="component">
         <div class="component-name">Context Shield</div>
@@ -148,23 +183,84 @@
         <p>11 automated integrity checks in an isolated session. Reports generated deterministically in code, not by the AI model. Silence indicates all checks passed.</p>
       </div>
     </div>
-    <p>Combined measured reliability: 90–92%. The remaining 8–10% involves model behaviors that cannot be enforced through code (post-compaction identity verification, confabulation prevention, correction acceptance).</p>
-    <p>Aristotle is designed to work alongside storage plugins, not to replace them. Compatible with mem0, lancedb, QMD, Cognee, Graphiti, and Lossless Claw. MIT licensed. No paid tiers.</p>
+    <p>Observed conduction reliability in this system: 90–92%. The remaining 8–10% involves model behaviors that cannot be enforced through deterministic code (post-compaction identity verification, confabulation prevention, correction acceptance).</p>
+    <p>Aristotle operates alongside storage plugins rather than replacing them. Compatible with mem0, lancedb, QMD, Cognee, Graphiti, and Lossless Claw. MIT licensed. No paid tiers.</p>
+  </div>
+
+  <div class="section">
+    <h2>Map of Agentic Memory Flow</h2>
+    <p>The following diagram illustrates how memory moves through the three-layer taxonomy — from storage through conduction into the agent's working context — and where each failure mode disrupts the pathway.</p>
+    <a href="/framework" class="map-preview">
+      <svg class="map-svg" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background -->
+        <rect width="600" height="260" fill="#fafaf8" rx="4"/>
+
+        <!-- Layer 1: Storage -->
+        <rect x="20" y="90" width="140" height="80" rx="6" fill="#eef3f8" stroke="#2a5a8c" stroke-width="1.5"/>
+        <text x="90" y="118" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="13" font-weight="600" fill="#2a5a8c">STORAGE</text>
+        <text x="90" y="136" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10" fill="#52514c">Memories created</text>
+        <text x="90" y="150" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10" fill="#52514c">and persisted</text>
+        <text x="90" y="76" text-anchor="middle" font-family="Source Code Pro, monospace" font-size="10" fill="#1b7a3d">Maturity: High</text>
+
+        <!-- Arrow 1 -->
+        <line x1="160" y1="130" x2="220" y2="130" stroke="#e2e0da" stroke-width="2"/>
+        <polygon points="218,125 228,130 218,135" fill="#e2e0da"/>
+
+        <!-- Layer 2: Conduction (the gap) -->
+        <rect x="230" y="60" width="140" height="140" rx="6" fill="#fef3e0" stroke="#9a6700" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="300" y="88" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="13" font-weight="600" fill="#9a6700">CONDUCTION</text>
+        <text x="300" y="108" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="9" fill="#6b6760">Write Corruption</text>
+        <text x="300" y="122" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="9" fill="#6b6760">Context Overload</text>
+        <text x="300" y="136" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="9" fill="#6b6760">Compaction Casualty</text>
+        <text x="300" y="150" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="9" fill="#6b6760">Bootstrap Truncation</text>
+        <text x="300" y="164" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="9" fill="#6b6760">Confabulation</text>
+        <text x="300" y="186" text-anchor="middle" font-family="Source Code Pro, monospace" font-size="10" fill="#9a6700">Maturity: Low</text>
+
+        <!-- Arrow 2 -->
+        <line x1="370" y1="130" x2="430" y2="130" stroke="#e2e0da" stroke-width="2"/>
+        <polygon points="428,125 438,130 428,135" fill="#e2e0da"/>
+
+        <!-- Layer 3: Retrieval / Working Context -->
+        <rect x="440" y="90" width="140" height="80" rx="6" fill="#eef3f8" stroke="#2a5a8c" stroke-width="1.5"/>
+        <text x="510" y="118" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="13" font-weight="600" fill="#2a5a8c">RETRIEVAL</text>
+        <text x="510" y="136" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10" fill="#52514c">Memories surfaced</text>
+        <text x="510" y="150" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10" fill="#52514c">into working context</text>
+        <text x="510" y="76" text-anchor="middle" font-family="Source Code Pro, monospace" font-size="10" fill="#1b7a3d">Maturity: High</text>
+
+        <!-- Title -->
+        <text x="300" y="30" text-anchor="middle" font-family="Source Serif 4, serif" font-size="15" font-weight="600" fill="#1a1a18">The Three-Layer Memory Taxonomy</text>
+        <text x="300" y="248" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="11" fill="#8a8880">Where agent amnesia actually occurs → the conduction layer</text>
+      </svg>
+      <div class="map-caption">View the full Map of Agentic Memory Flow →</div>
+    </a>
   </div>
 
   <div class="section">
     <h2>Resources</h2>
     <ul class="ext-links">
-      <li><a href="https://github.com/aristotle-agent/aristotle">Aristotle — Source and Documentation</a> <span class="label">GitHub</span></li>
+      <li><a href="/framework">Map of Agentic Memory Flow</a> <span class="label">Full framework paper</span></li>
+      <li><a href="https://github.com/aristotle-agent/aristotle">Aristotle — Reference Implementation</a> <span class="label">GitHub</span></li>
       <li><a href="https://github.com/aristotle-agent/aristotle/discussions">Community Discussion</a> <span class="label">GitHub Discussions</span></li>
     </ul>
   </div>
 
 </div>
 
-<footer>
-  <p>Reference implementation: <a href="https://github.com/aristotle-agent/aristotle">github.com/aristotle-agent/aristotle</a></p>
+<footer id="contact">
+  <p class="contact-line">Research & Media Contact: <a href="mailto:research@memoryconduction.com">research@memoryconduction.com</a></p>
+  <p>&copy; 2026 Memory Conduction Research</p>
 </footer>
+
+<!-- Close menu when clicking outside -->
+<script>
+document.addEventListener('click', function(e) {
+  var menu = document.querySelector('.nav-menu');
+  var hamburger = document.querySelector('.hamburger');
+  if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
+</script>
 
 </body>
 </html>

@@ -6,7 +6,7 @@
 <title>Memory Conduction: The Missing Layer in Autonomous Agent Memory Architecture</title>
 <meta name="description" content="A formal classification of memory conduction failures in AI agent systems. Five documented failure modes, architectural analysis, the Memory Redirect pattern, and a reference implementation.">
 <meta name="keywords" content="memory conduction, OpenClaw, agent memory, agent amnesia, memory protection, compaction, write corruption, confabulation, Aristotle, AI agent">
-<meta name="author" content="Aristotle Project">
+<meta name="author" content="Memory Conduction Research">
 <meta name="google-site-verification" content="KorakoxGzGDUJADRRCyJPlviFmh8iU5tmTtLYq4-En8" />
 <link rel="canonical" href="https://memoryconduction.com/framework">
 <meta property="og:title" content="Memory Conduction: The Missing Layer in Autonomous Agent Memory Architecture">
@@ -21,8 +21,17 @@
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{--bg:#fafaf8;--surface:#fff;--border:#e2e0da;--border-light:#eeece6;--text:#1a1a18;--text-secondary:#52514c;--text-tertiary:#8a8880;--accent:#2a5a8c;--accent-light:#eef3f8;--tag-bg:#f0ece4;--tag-text:#6b6760;--font-serif:'Source Serif 4',Georgia,serif;--font-sans:'Source Sans 3',-apple-system,sans-serif;--font-mono:'Source Code Pro',monospace}
   body{background:var(--bg);color:var(--text);font-family:var(--font-serif);font-size:18px;line-height:1.8;-webkit-font-smoothing:antialiased}
+  .nav-bar{position:fixed;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid var(--border-light);z-index:100;padding:0 24px;height:48px;display:flex;align-items:center;justify-content:space-between}
+  .nav-logo{font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--text);text-decoration:none}
+  .nav-logo:hover{text-decoration:none}
+  .hamburger{background:none;border:none;cursor:pointer;padding:8px;display:flex;flex-direction:column;gap:4px}
+  .hamburger span{display:block;width:20px;height:2px;background:var(--text)}
+  .nav-menu{display:none;position:fixed;top:48px;right:0;background:var(--surface);border:1px solid var(--border);border-radius:0 0 0 8px;padding:8px 0;min-width:220px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+  .nav-menu.open{display:block}
+  .nav-menu a{display:block;padding:10px 24px;font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);text-decoration:none}
+  .nav-menu a:hover{background:var(--accent-light);color:var(--text);text-decoration:none}
   .paper{max-width:700px;margin:0 auto;padding:0 24px}
-  header{padding:60px 0 40px;border-bottom:1px solid var(--border)}
+  header{padding:100px 0 40px;border-bottom:1px solid var(--border)}
   .breadcrumb{font-family:var(--font-sans);font-size:13px;color:var(--text-tertiary);margin-bottom:24px}
   .breadcrumb a{color:var(--accent);text-decoration:none}
   .breadcrumb a:hover{text-decoration:underline}
@@ -58,6 +67,18 @@
 </style>
 </head>
 <body>
+
+<nav class="nav-bar">
+  <a href="/" class="nav-logo">Memory Conduction</a>
+  <button class="hamburger" onclick="document.querySelector('.nav-menu').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-menu">
+    <a href="/">Research</a>
+    <a href="/framework">Map of Agentic Memory</a>
+    <a href="/#contact">Contact</a>
+  </div>
+</nav>
 
 <div class="paper">
 
@@ -229,13 +250,43 @@ Spawn sub-agent bare       →  "Read continuity file first. Include context."</
   <p>The battery was never the problem. The conductor was.</p>
 </section>
 
+<section>
+  <h2><span class="section-num">11.</span> Observed Implementation</h2>
+  <p>During the course of this research, an open-source OpenClaw plugin called <strong>Aristotle</strong> was identified as the first publicly available tool to explicitly address memory conduction as a distinct operational concern. Its architecture provided a working demonstration of conduction-layer intervention in a production agent system, and its measured results informed several conclusions presented in this paper.</p>
+  <p>Aristotle implements four components that map directly to the failure modes classified in Section 3:</p>
+  <table>
+    <thead>
+      <tr><th>Component</th><th>Function</th><th>Mechanism</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Guard</strong></td><td>Write protection</td><td>10 redirect rules on <code>before_tool_call</code> hook. Returns corrective instructions rather than blocking.</td></tr>
+      <tr><td><strong>Context Shield</strong></td><td>Context pressure management</td><td>Session JSONL transcript monitoring. Acts at 65% capacity — before emergency compaction at 95%+.</td></tr>
+      <tr><td><strong>Boot Card</strong></td><td>Efficient context carry</td><td>Full file read at session initialization → ~20-line summary → carried for session duration. 262K → under 12K tokens.</td></tr>
+      <tr><td><strong>QC Nightly</strong></td><td>Conduction integrity verification</td><td>11 automated checks in isolated session. Deterministic code-generated reports (not model-formatted).</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Observed results:</strong> Per-turn token consumption decreased from 262,144 to under 12,000. Conduction reliability measured at approximately 90–92%. The residual 8–10% involves model behaviors that cannot be enforced through deterministic code.</p>
+  <p>Aristotle operates alongside storage plugins rather than replacing them. Compatible with mem0, lancedb, QMD, Cognee, Graphiti, and Lossless Claw. MIT licensed. No paid tiers.</p>
+  <p>Source: <a href="https://github.com/aristotle-agent/aristotle">github.com/aristotle-agent/aristotle</a></p>
+</section>
+
 </div>
 
-<footer>
-  <p>Reference implementation: <a href="https://github.com/aristotle-agent/aristotle">github.com/aristotle-agent/aristotle</a></p>
-  <p>Discussion: <a href="https://github.com/aristotle-agent/aristotle/discussions">github.com/aristotle-agent/aristotle/discussions</a></p>
-  <p><a href="/">← Back to Memory Conduction definition</a></p>
+<footer style="max-width:700px;margin:0 auto;padding:40px 24px 60px;border-top:2px solid #e2e0da;text-align:center">
+  <p style="font-family:'Source Sans 3',sans-serif;font-size:17px;color:#1a1a18;margin-bottom:20px;font-weight:500">Research & Media Contact: <a href="mailto:research@memoryconduction.com" style="color:#2a5a8c;font-weight:600">research@memoryconduction.com</a></p>
+  <p style="font-family:'Source Sans 3',sans-serif;font-size:13px;color:#8a8880;margin-bottom:6px"><a href="/" style="color:#52514c">← Back to Memory Conduction definition</a></p>
+  <p style="font-family:'Source Sans 3',sans-serif;font-size:13px;color:#8a8880">&copy; 2026 Memory Conduction Research</p>
 </footer>
+
+<script>
+document.addEventListener('click', function(e) {
+  var menu = document.querySelector('.nav-menu');
+  var hamburger = document.querySelector('.hamburger');
+  if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
+</script>
 
 </body>
 </html>
