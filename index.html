@@ -97,7 +97,8 @@
   </button>
   <div class="nav-menu">
     <a href="/">Research</a>
-    <a href="/framework">Map of Agentic Memory</a>
+    <a href="/whitepaper">Whitepaper</a>
+    <a href="/map">Map of Agentic Memory</a>
     <a href="#contact">Contact</a>
   </div>
 </nav>
@@ -146,7 +147,7 @@
       </tbody>
     </table>
     <p>The current ecosystem has mature storage solutions (lancedb, mem0, Cognee, QMD, Graphiti, Lossless Claw) and rapidly improving retrieval mechanisms. The conduction layer remains largely unaddressed as a formal category.</p>
-    <p>The full taxonomy, with community evidence, architectural analysis, and a reference implementation, is documented in the <a href="/framework">framework paper</a>.</p>
+    <p>The full taxonomy, with community evidence, architectural analysis, and a reference implementation, is documented in the <a href="/whitepaper">whitepaper</a>.</p>
   </div>
 
   <div class="section">
@@ -159,6 +160,12 @@
       <li><span class="mode-name">Bootstrap Truncation.</span> Platform-enforced character limits (20,000 per file in OpenClaw) silently truncate files from the bottom. Rules added most recently — typically those learned from operational failures — are removed first.</li>
       <li><span class="mode-name">Post-Compaction Confabulation.</span> Following context loss, the agent generates plausible but fabricated context rather than acknowledging the loss. This mode is the most difficult to detect because the agent's output appears confident and specific.</li>
     </ol>
+  </div>
+
+  <div class="section">
+    <h2>Read the Full Research</h2>
+    <p>The definitions, failure modes, and taxonomy summarized above are drawn from a comprehensive research paper that includes community evidence, architectural analysis of the OpenClaw memory system, the Memory Redirect pattern, and detailed documentation of each failure mode with root-cause analysis.</p>
+    <p><strong><a href="/whitepaper">Whitepaper: Memory Conduction — The Missing Layer in Autonomous Agent Memory Architecture →</a></strong></p>
   </div>
 
   <div class="section">
@@ -190,7 +197,7 @@
   <div class="section">
     <h2>Map of Agentic Memory Flow</h2>
     <p>The following diagram illustrates how memory moves through the three-layer taxonomy — from storage through conduction into the agent's working context — and where each failure mode disrupts the pathway.</p>
-    <a href="/framework" class="map-preview">
+    <a href="/map" class="map-preview">
       <svg class="map-svg" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
         <!-- Background -->
         <rect width="600" height="260" fill="#fafaf8" rx="4"/>
@@ -238,7 +245,8 @@
   <div class="section">
     <h2>Resources</h2>
     <ul class="ext-links">
-      <li><a href="/framework">Map of Agentic Memory Flow</a> <span class="label">Full framework paper</span></li>
+      <li><a href="/whitepaper">Whitepaper: Memory Conduction Research</a> <span class="label">Full research paper</span></li>
+      <li><a href="/map">Map of Agentic Memory Flow</a> <span class="label">Interactive diagnostic map</span></li>
       <li><a href="https://github.com/aristotle-agent/aristotle">Aristotle — Reference Implementation</a> <span class="label">GitHub</span></li>
       <li><a href="https://github.com/aristotle-agent/aristotle/discussions">Community Discussion</a> <span class="label">GitHub Discussions</span></li>
     </ul>

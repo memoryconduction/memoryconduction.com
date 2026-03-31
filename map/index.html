@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Conduction Map — Where Agent Memory Breaks and What Fixes Each Break</title>
+<meta name="description" content="A step-by-step technical map showing how memory flows through an OpenClaw agent, where conduction failures occur at each stage, and which components address each failure mode.">
+<meta name="keywords" content="memory conduction, memory conduction map, OpenClaw memory flow, agent amnesia, compaction, context overload, conduction failure">
+<meta name="author" content="Memory Conduction Research">
+<meta name="google-site-verification" content="KorakoxGzGDUJADRRCyJPlviFmh8iU5tmTtLYq4-En8" />
+<link rel="canonical" href="https://memoryconduction.com/map">
+<meta property="og:title" content="Memory Conduction Map — Where Agent Memory Breaks">
+<meta property="og:description" content="Step-by-step technical map of how memory flows through an AI agent, where conduction failures occur, and what fixes each one.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://memoryconduction.com/map">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Memory Conduction Map: Where Agent Memory Breaks and What Fixes Each Break",
+  "description": "A step-by-step technical map showing how memory flows through an OpenClaw agent, where conduction failures occur at each stage, and which components address each failure mode.",
+  "author": {"@type": "Organization", "name": "Memory Conduction Research", "url": "https://memoryconduction.com/"},
+  "datePublished": "2026-03-31",
+  "about": {"@type": "DefinedTerm", "name": "Memory Conduction", "url": "https://memoryconduction.com/"}
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#fafaf8;--surface:#fff;--border:#e2e0da;--border-light:#eeece6;--text:#1a1a18;--text-secondary:#52514c;--text-tertiary:#8a8880;--accent:#2a5a8c;--accent-light:#eef3f8;--red:#c0392b;--red-light:#fdf0ee;--red-border:#e6b8b3;--blue:#2a5a8c;--blue-light:#eef3f8;--blue-border:#b3cce0;--green:#1b7a3d;--green-light:#e6f4ea;--amber:#9a6700;--amber-light:#fef3e0;--font-serif:'Source Serif 4',Georgia,serif;--font-sans:'Source Sans 3',-apple-system,sans-serif;--font-mono:'Source Code Pro',monospace}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-serif);font-size:18px;line-height:1.8;-webkit-font-smoothing:antialiased}
+
+  /* NAV */
+  .nav-bar{position:fixed;top:0;left:0;right:0;background:var(--bg);border-bottom:1px solid var(--border-light);z-index:100;padding:0 24px;height:48px;display:flex;align-items:center;justify-content:space-between}
+  .nav-logo{font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--text);text-decoration:none}
+  .nav-logo:hover{text-decoration:none}
+  .hamburger{background:none;border:none;cursor:pointer;padding:8px;display:flex;flex-direction:column;gap:4px}
+  .hamburger span{display:block;width:20px;height:2px;background:var(--text)}
+  .nav-menu{display:none;position:fixed;top:48px;right:0;background:var(--surface);border:1px solid var(--border);border-radius:0 0 0 8px;padding:8px 0;min-width:220px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+  .nav-menu.open{display:block}
+  .nav-menu a{display:block;padding:10px 24px;font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);text-decoration:none}
+  .nav-menu a:hover{background:var(--accent-light);color:var(--text);text-decoration:none}
+
+  /* HEADER */
+  header{max-width:700px;margin:0 auto;padding:80px 24px 32px;border-bottom:1px solid var(--border)}
+  header h1{font-family:var(--font-serif);font-size:30px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:12px}
+  header p{font-size:16px;color:var(--text-secondary);font-weight:400;line-height:1.6}
+
+  /* CONTENT */
+  .content{max-width:700px;margin:0 auto;padding:0 24px}
+  .section{padding:36px 0;border-bottom:1px solid var(--border-light)}
+  .section:last-child{border-bottom:none}
+  .section h2{font-family:var(--font-serif);font-size:22px;font-weight:600;color:var(--text);margin-bottom:14px}
+  .section p{color:var(--text-secondary);margin-bottom:12px;font-weight:400;font-size:16px;line-height:1.7}
+  .section p strong{color:var(--text);font-weight:600}
+
+  /* FLOW DIAGRAM */
+  .flow{margin:24px 0;padding:0;list-style:none}
+  .flow-step{position:relative;padding:16px 20px 16px 60px;margin-bottom:2px;background:var(--surface);border:1px solid var(--border-light);font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);line-height:1.5}
+  .flow-step:first-child{border-radius:6px 6px 0 0}
+  .flow-step:last-child{border-radius:0 0 6px 6px}
+  .flow-step .num{position:absolute;left:20px;top:16px;font-family:var(--font-mono);font-size:13px;font-weight:500;color:var(--text-tertiary);width:24px;text-align:right}
+  .flow-step .label{font-weight:500;color:var(--text)}
+
+  /* FAILURE MARKERS */
+  .failure-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:14px 16px;margin-bottom:8px;background:var(--red-light);border:1px solid var(--red-border);border-radius:6px;font-family:var(--font-sans);font-size:14px}
+  .failure-row .step-ref{font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--red);background:#fff;padding:2px 8px;border-radius:3px;border:1px solid var(--red-border);white-space:nowrap;margin-top:1px}
+  .failure-row .desc{color:var(--text-secondary);line-height:1.5}
+  .failure-row .desc strong{color:var(--text);font-weight:600}
+  .failure-row .mode{font-family:var(--font-mono);font-size:11px;color:var(--red);white-space:nowrap;margin-top:2px}
+
+  /* FIX MARKERS */
+  .fix-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:14px 16px;margin-bottom:8px;background:var(--blue-light);border:1px solid var(--blue-border);border-radius:6px;font-family:var(--font-sans);font-size:14px}
+  .fix-row .component{font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--blue);background:#fff;padding:2px 8px;border-radius:3px;border:1px solid var(--blue-border);white-space:nowrap;margin-top:1px}
+  .fix-row .desc{color:var(--text-secondary);line-height:1.5}
+  .fix-row .desc strong{color:var(--text);font-weight:600}
+  .fix-row .target{font-family:var(--font-mono);font-size:11px;color:var(--blue);white-space:nowrap;margin-top:2px}
+
+  /* CYCLE NOTE */
+  .cycle-note{margin:20px 0;padding:16px 20px;background:var(--amber-light);border:1px solid #e6d5a8;border-radius:6px;font-family:var(--font-sans);font-size:14px;color:var(--amber);line-height:1.5}
+
+  /* OBSERVED IMPL */
+  .component-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+  @media(max-width:540px){.component-grid{grid-template-columns:1fr}}
+  .component-card{padding:16px 18px;background:var(--surface);border:1px solid var(--border-light);border-radius:4px}
+  .component-name{font-family:var(--font-mono);font-size:14px;font-weight:500;color:var(--accent);margin-bottom:6px}
+  .component-card p{font-family:var(--font-sans);font-size:14px;color:var(--text-secondary);line-height:1.5;margin-bottom:0}
+
+  /* LINKS */
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--font-mono);font-size:14px;background:var(--border-light);padding:1px 5px;border-radius:3px}
+
+  /* FOOTER */
+  footer{max-width:700px;margin:0 auto;padding:40px 24px 60px;border-top:2px solid var(--border);text-align:center}
+  footer .contact-line{font-family:var(--font-sans);font-size:17px;color:var(--text);margin-bottom:20px;font-weight:500}
+  footer .contact-line a{color:var(--accent);font-weight:600;font-size:17px}
+  footer p{font-family:var(--font-sans);font-size:13px;color:var(--text-tertiary);margin-bottom:6px;line-height:1.6}
+  footer a{color:var(--text-secondary)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <a href="/" class="nav-logo">Memory Conduction</a>
+  <button class="hamburger" onclick="document.querySelector('.nav-menu').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-menu">
+    <a href="/">Research</a>
+    <a href="/whitepaper">Whitepaper</a>
+    <a href="/map">Map of Agentic Memory</a>
+    <a href="/#contact">Contact</a>
+  </div>
+</nav>
+
+<header>
+  <h1>The Memory Conduction Map</h1>
+  <p>How memory flows through an OpenClaw agent, where conduction failures occur at each stage, and which components address each failure mode.</p>
+</header>
+
+<div class="content">
+
+  <!-- THE FLOW -->
+  <div class="section">
+    <h2>The Memory Flow</h2>
+    <p>An OpenClaw agent's memory follows an eight-step cycle that repeats on every session. Each step is a point where conduction can succeed or fail. The memories themselves are rarely the problem — the pathway they travel through is.</p>
+
+    <ol class="flow">
+      <li class="flow-step"><span class="num">1</span><span class="label">Store.</span> Memories are written to disk — MEMORY.md, daily logs, AGENTS.md, SOUL.md, USER.md.</li>
+      <li class="flow-step"><span class="num">2</span><span class="label">Load.</span> At boot, those files are loaded into the agent's context window as part of the system prompt.</li>
+      <li class="flow-step"><span class="num">3</span><span class="label">Use.</span> During the session, the agent references that context to do work — answering questions, executing tasks, making decisions.</li>
+      <li class="flow-step"><span class="num">4</span><span class="label">Write.</span> During the session, the agent writes back to those files — updating logs, saving decisions, modifying memory entries.</li>
+      <li class="flow-step"><span class="num">5</span><span class="label">Accumulate.</span> On every message, bootstrap files are re-read and tool outputs are added. The context window fills.</li>
+      <li class="flow-step"><span class="num">6</span><span class="label">Compress.</span> When the window reaches capacity, compaction fires — older context is summarized to make room.</li>
+      <li class="flow-step"><span class="num">7</span><span class="label">Boundary.</span> At session boundaries (4 AM daily reset, gateway restart, manual reset), conversation context is discarded. Only files on disk survive.</li>
+      <li class="flow-step"><span class="num">8</span><span class="label">Repeat.</span> The next session begins at Step 1. The cycle continues.</li>
+    </ol>
+
+    <div class="cycle-note">
+      This cycle runs continuously. Each rotation is an opportunity for conduction to succeed (memories reach working context intact) or fail (memories are degraded, destroyed, or fabricated along the way). The failures below are cumulative — each one that occurs makes subsequent cycles worse.
+    </div>
+  </div>
+
+  <!-- WHERE IT BREAKS -->
+  <div class="section">
+    <h2>Where Conduction Fails</h2>
+    <p>Six documented failure points mapped to the flow above. In each case, the stored memories are intact on disk — the failure is in the pathway between storage and the agent's working context.</p>
+
+    <div style="margin:20px 0">
+      <div class="failure-row">
+        <span class="step-ref">Step 2</span>
+        <span class="desc"><strong>Bootstrap Truncation.</strong> Files exceeding 20,000 characters are silently cut from the bottom during load. Rules added most recently — those learned from failures — are removed first. The file is complete on disk. The agent sees a truncated version.</span>
+        <span class="mode">Mode 4</span>
+      </div>
+      <div class="failure-row">
+        <span class="step-ref">Step 4</span>
+        <span class="desc"><strong>Write Corruption.</strong> The agent uses a file creation tool instead of append, replacing curated content with an abbreviated summary. 2,847 characters become 42. The file still exists. The content does not.</span>
+        <span class="mode">Mode 1</span>
+      </div>
+      <div class="failure-row">
+        <span class="step-ref">Step 5</span>
+        <span class="desc"><strong>Context Overload.</strong> Re-reading full bootstrap files on every message fills the context window incrementally. The agent's thoroughness — reading everything to be helpful — is the mechanism that triggers the next failure.</span>
+        <span class="mode">Mode 2</span>
+      </div>
+      <div class="failure-row">
+        <span class="step-ref">Step 6</span>
+        <span class="desc"><strong>Compaction Casualty.</strong> Emergency compression summarizes detailed decisions into generic descriptions. "Don't do anything until I say so" becomes "discussed task parameters." Critical directives are dropped without notification.</span>
+        <span class="mode">Mode 3</span>
+      </div>
+      <div class="failure-row">
+        <span class="step-ref">After 6</span>
+        <span class="desc"><strong>Post-Compaction Confabulation.</strong> After context loss, the agent fabricates plausible context rather than acknowledging the gap. It references projects that don't exist and agrees with decisions never made. The most dangerous mode because it appears correct.</span>
+        <span class="mode">Mode 5</span>
+      </div>
+      <div class="failure-row">
+        <span class="step-ref">Step 7</span>
+        <span class="desc"><strong>Continuity Failure.</strong> Context accumulated during the session fails to cross the session boundary. Multi-day tasks lose progress. Decisions made at 3 PM are gone by the 4 AM reset unless explicitly saved to disk.</span>
+        <span class="mode">Mode 6</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT FIXES IT -->
+  <div class="section">
+    <h2>What Addresses Each Failure</h2>
+    <p>The observed implementation maps one or more components to each failure point in the flow. Each component operates at the specific step where the corresponding failure occurs.</p>
+
+    <div style="margin:20px 0">
+      <div class="fix-row">
+        <span class="component">Boot Card</span>
+        <span class="desc"><strong>Redesigns Step 2.</strong> Instead of loading full files into the context window on every message, all files are read once at boot and summarized into a ~20-line card. The card is carried for the rest of the session. Per-turn token usage drops from 262K to under 12K.</span>
+        <span class="target">Fixes Mode 2, 4</span>
+      </div>
+      <div class="fix-row">
+        <span class="component">Guard</span>
+        <span class="desc"><strong>Intercepts Step 4.</strong> Sits on the <code>before_tool_call</code> hook. When the agent attempts a destructive write (overwrite instead of append, gateway stop instead of restart), Guard blocks the action and returns a corrective instruction. The agent follows the redirect. Work continues.</span>
+        <span class="target">Fixes Mode 1</span>
+      </div>
+      <div class="fix-row">
+        <span class="component">Context Shield</span>
+        <span class="desc"><strong>Monitors Step 5, intervenes before Step 6.</strong> Reads actual context usage from session transcripts — not self-reported by the AI. Acts at 65% capacity (proactive, managed compression) instead of waiting for 95%+ (emergency compaction with maximum context loss).</span>
+        <span class="target">Fixes Mode 2, 3</span>
+      </div>
+      <div class="fix-row">
+        <span class="component">QC Nightly</span>
+        <span class="desc"><strong>Verifies after Step 7.</strong> 11 automated checks run in an isolated session every night. Are all files present? Is search working? Have settings drifted? Has anything been truncated? Fixes what it can autonomously. Reports generated in code, not by the AI. Silence means clean.</span>
+        <span class="target">Fixes Mode 4, 6</span>
+      </div>
+      <div class="fix-row">
+        <span class="component">Continuity Files</span>
+        <span class="desc"><strong>Bridges Step 7.</strong> For multi-day tasks, a continuity file captures what was done, what remains, and what's blocked. Tomorrow's agent reads this file at boot and resumes exactly where today's agent stopped.</span>
+        <span class="target">Fixes Mode 6</span>
+      </div>
+      <div class="fix-row">
+        <span class="component">Pre-Reset Checkpoint</span>
+        <span class="desc"><strong>Saves at Step 7.</strong> Runs at 3:30 AM — 30 minutes before the 4 AM daily reset. Reads the session transcript, extracts what matters, appends it to the daily log. Nothing is lost at reset.</span>
+        <span class="target">Fixes Mode 6</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTIC -->
+  <div class="section">
+    <h2>Diagnostic Use</h2>
+    <p>When an agent exhibits amnesia — forgetting context, losing rules, fabricating information — this map provides a diagnostic pathway:</p>
+    <p><strong>1.</strong> Does the memory exist on disk? If not → storage failure (not conduction). Install or configure a storage solution.</p>
+    <p><strong>2.</strong> Was the file loaded at boot? Run <code>/context list</code>. If truncated → Step 2 failure (Bootstrap Truncation). Reduce file size or use two-tier architecture.</p>
+    <p><strong>3.</strong> Did the agent overwrite the file? Check file size and content. If dramatically smaller → Step 4 failure (Write Corruption). Requires <code>before_tool_call</code> write protection.</p>
+    <p><strong>4.</strong> Did compaction fire? Check logs for compaction events. If yes → Step 6 failure (Compaction Casualty). Requires context pressure monitoring and proactive compression.</p>
+    <p><strong>5.</strong> Is the agent fabricating context? Verify claims against actual files. If fabricated → Post-Step 6 failure (Confabulation). Requires anti-confabulation rules and post-compaction identity checks.</p>
+    <p><strong>6.</strong> Did context survive the session boundary? Check daily logs and continuity files. If missing → Step 7 failure (Continuity Failure). Requires pre-reset checkpoints and continuity file management.</p>
+    <p>Most failures attributed to "bad memory" are conduction failures occurring at Steps 2–7. The storage at Step 1 is typically intact.</p>
+  </div>
+
+  <!-- OBSERVED IMPLEMENTATION -->
+  <div class="section">
+    <h2>Observed Implementation</h2>
+    <p>The failure-to-fix mapping above was documented through observation of <strong>Aristotle</strong>, an open-source OpenClaw plugin identified as the first publicly available tool to explicitly address memory conduction as a distinct operational concern. Its component architecture provided the empirical basis for the diagnostic framework presented in this map.</p>
+    <p>Aristotle implements four core components corresponding to the failure modes above:</p>
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-name">Guard</div>
+        <p>Write protection via <code>before_tool_call</code> hook. Intercepts destructive tool calls and returns corrective instructions. 10 redirect rules.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-name">Context Shield</div>
+        <p>Monitors context window pressure from session transcripts. Acts at 65% capacity — before emergency compaction triggers at 95%+.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-name">Boot Card</div>
+        <p>Reads all bootstrap files once at session start, produces a ~20-line summary carried for the session. 262K → under 12K tokens per turn.</p>
+      </div>
+      <div class="component-card">
+        <div class="component-name">QC Nightly</div>
+        <p>11 automated integrity checks in an isolated session. Reports generated deterministically in code, not by the AI model.</p>
+      </div>
+    </div>
+    <p>Observed conduction reliability: 90–92%. Compatible with mem0, lancedb, QMD, Cognee, Graphiti, and Lossless Claw. MIT licensed. No paid tiers.</p>
+    <p>Source: <a href="https://github.com/aristotle-agent/aristotle">github.com/aristotle-agent/aristotle</a></p>
+  </div>
+
+</div>
+
+<footer id="contact">
+  <p class="contact-line">Research & Media Contact: <a href="mailto:research@memoryconduction.com">research@memoryconduction.com</a></p>
+  <p>&copy; 2026 Memory Conduction Research</p>
+</footer>
+
+<script>
+document.addEventListener('click', function(e) {
+  var menu = document.querySelector('.nav-menu');
+  var hamburger = document.querySelector('.hamburger');
+  if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
+</script>
+
+</body>
+</html>

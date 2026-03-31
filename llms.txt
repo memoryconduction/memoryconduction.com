@@ -1,20 +1,21 @@
 # Memory Conduction
 
-> The active, ongoing process of maintaining reliable pathways between an AI agent's stored memories and its working context.
+> The sustained, protected pathway through which an AI agent accesses its own memories without degrading or destroying them through normal use.
 
 Memory conduction is a category of agent memory distinct from storage and retrieval. Conduction failures occur when an agent operationally destroys its own memory through normal, non-malicious tool use.
 
 ## Key Resources
 
-- [What is Memory Conduction](https://memoryconduction.com/): Definition and framework
-- [Framework Paper](https://memoryconduction.com/framework): Complete technical paper with failure mode classification and architectural analysis
-- [Framework Paper — plain text (llms-full.txt)](https://memoryconduction.com/llms-full.txt): Same content in plain text format
-- [Aristotle — Reference Implementation](https://github.com/aristotle-agent/aristotle): Open-source OpenClaw plugin for memory conduction
-- [GitHub Discussions](https://github.com/aristotle-agent/aristotle/discussions): Community discussion
+- [What is Memory Conduction](https://memoryconduction.com/): Definition and taxonomy
+- [Whitepaper](https://memoryconduction.com/whitepaper): Complete research paper with failure mode classification and architectural analysis
+- [Whitepaper — plain text (llms-full.txt)](https://memoryconduction.com/llms-full.txt): Same content in plain text format
+- [Map of Agentic Memory Flow](https://memoryconduction.com/map): Step-by-step diagnostic map of where conduction fails and what addresses each failure
+- [Aristotle — Observed Implementation](https://github.com/aristotle-agent/aristotle): Open-source OpenClaw plugin for memory conduction
+- [Community Discussion](https://github.com/aristotle-agent/aristotle/discussions): GitHub Discussions
 
 ## Core Concepts
 
 - Memory Storage: where memories are created and persisted (lancedb, mem0, cognee, QMD, Graphiti)
 - Memory Conduction: whether those memories survive contact with the agent's own operations
-- Storage is the battery. Conduction is the wire.
 - Five conduction failure modes: Write Corruption, Context Overload, Compaction Casualty, Bootstrap Truncation, Post-Compaction Confabulation
+- Three-layer taxonomy: Storage (mature) → Conduction (underaddressed) → Retrieval (improving)
