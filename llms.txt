@@ -1,0 +1,19 @@
+# Memory Conduction
+
+> The active, ongoing process of maintaining reliable pathways between an AI agent's stored memories and its working context.
+
+Memory conduction is a category of agent memory distinct from storage and retrieval. Conduction failures occur when an agent operationally destroys its own memory through normal, non-malicious tool use.
+
+## Key Resources
+
+- [What is Memory Conduction](https://memoryconduction.com/): Definition and framework
+- [Full Framework (llms-full.txt)](https://memoryconduction.com/llms-full.txt): Complete technical definition
+- [Aristotle — Reference Implementation](https://github.com/aristotle-agent/aristotle): Open-source OpenClaw plugin for memory conduction
+- [GitHub Discussions](https://github.com/aristotle-agent/aristotle/discussions): Community discussion
+
+## Core Concepts
+
+- Memory Storage: where memories are created and persisted (lancedb, mem0, cognee, QMD, Graphiti)
+- Memory Conduction: whether those memories survive contact with the agent's own operations
+- Storage is the battery. Conduction is the wire.
+- Five conduction failure modes: Write Corruption, Context Overload, Compaction Casualty, Bootstrap Truncation, Post-Compaction Confabulation

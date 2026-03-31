@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Conduction — The Missing Layer in Agent Memory</title>
+<meta name="description" content="Memory conduction is the active process of maintaining reliable pathways between stored memories and an agent's working context. Your agent is operationally destroying its own memory through normal use. There's a name for that now.">
+<meta name="keywords" content="memory conduction, OpenClaw, agent memory, memory protection, compaction, amnesia, Aristotle">
+<meta name="author" content="Aristotle">
+<link rel="canonical" href="https://memoryconduction.com/">
+
+<!-- Open Graph -->
+
+<meta property="og:title" content="Memory Conduction — The Missing Layer in Agent Memory">
+<meta property="og:description" content="Your agent has perfect memory on disk. It just keeps destroying it through normal use. There's a name for that now: memory conduction.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://memoryconduction.com/">
+
+<!-- Twitter Card -->
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Memory Conduction — The Missing Layer in Agent Memory">
+<meta name="twitter:description" content="Storage is the battery. Conduction is whether the power reaches your agent.">
+
+<!-- FAQ Schema for Google AI Overviews -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is memory conduction?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Memory conduction is the active, ongoing process of maintaining reliable pathways between an AI agent's stored memories and its working context. Conduction failures occur when an agent operationally destroys its own memory through normal, non-malicious tool use — overwriting files, overloading the context window, triggering destructive compaction, or fabricating context after memory loss. Storage is where memories go. Conduction is whether they survive contact with your own agent."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between memory storage and memory conduction?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Memory storage solves where memories are created, indexed, and persisted (lancedb, mem0, cognee, QMD, Graphiti). Memory conduction solves whether those memories survive contact with the agent's own operations — overwrites, compaction kills, bootstrap bloat, and context overload. Storage is the battery. Conduction is the wire. You can have a full battery and a working lightbulb and still sit in a dark room if the wire is broken."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What causes memory conduction failures in OpenClaw?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Five failure modes: (1) Write Corruption — agent overwrites memory files with abbreviated content. (2) Context Overload — agent re-reads full files on every message, filling the context window. (3) Compaction Casualty — lossy compression destroys critical context. (4) Bootstrap Truncation — files exceeding 20,000 characters are silently cut. (5) Post-Compaction Confabulation — agent fabricates context rather than acknowledging memory loss."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Aristotle fix memory conduction?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Aristotle is an open-source OpenClaw plugin that provides four conduction components: Guard (write protection via before_tool_call hook — redirects destructive actions instead of blocking them), Context Shield (monitors context pressure and acts before emergency compaction), Boot Card (read once at morning, carry a 20-line summary all day — reduces tokens from 262K to under 12K), and QC Nightly (11 automated integrity checks with deterministic code-generated reports)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does memory conduction replace memory plugins like mem0 or lancedb?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Memory conduction works alongside storage plugins, not instead of them. Storage plugins build the battery — they create and index memories. Conduction protects what storage creates — it ensures those memories survive contact with the agent. Aristotle is designed to complement mem0, lancedb, QMD, Cognee, Lossless Claw, and Graphiti."
+      }
+    }
+  ]
+}
+</script>
+
+<!-- Website Schema -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Memory Conduction",
+  "url": "https://memoryconduction.com/",
+  "description": "Memory conduction is the active process of maintaining reliable pathways between stored memories and an agent's working context."
+}
+</script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1a1a1a;
+    --border: rgba(255,255,255,0.06);
+    --border-strong: rgba(255,255,255,0.12);
+    --text: #e8e6e0;
+    --text-secondary: #999890;
+    --text-tertiary: #666560;
+    --accent: #c9a227;
+    --accent-dim: rgba(201,162,39,0.12);
+    --accent-glow: rgba(201,162,39,0.06);
+    --blue: #4a9eff;
+    --blue-dim: rgba(74,158,255,0.1);
+    --red: #e24b4a;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- HERO --- */
+  .hero {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 24px 60px;
+    text-align: center;
+  }
+
+  .hero-symbol {
+    font-size: 32px;
+    color: var(--accent);
+    margin-bottom: 32px;
+    letter-spacing: 0.2em;
+    font-family: var(--font-mono);
+  }
+
+  .hero h1 {
+    font-family: var(--font-mono);
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero h1 span {
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 19px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 560px;
+    margin: 0 auto 40px;
+  }
+
+  .hero-line {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    padding: 12px 24px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(201,162,39,0.2);
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  /* --- DIVIDER --- */
+  .divider {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .divider hr {
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* --- SECTIONS --- */
+  .section {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 60px 24px;
+  }
+
+  .section h2 {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  .section h2 .num {
+    color: var(--accent);
+    margin-right: 8px;
+  }
+
+  .section p {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    font-weight: 300;
+  }
+
+  .section p strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* --- SPLIT BOX --- */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 32px 0;
+  }
+
+  @media (max-width: 600px) {
+    .split { grid-template-columns: 1fr; }
+  }
+
+  .split-box {
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .split-box.storage {
+    background: var(--blue-dim);
+    border-color: rgba(74,158,255,0.15);
+  }
+
+  .split-box.conduction {
+    background: var(--accent-dim);
+    border-color: rgba(201,162,39,0.2);
+  }
+
+  .split-box h3 {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .split-box.storage h3 { color: var(--blue); }
+  .split-box.conduction h3 { color: var(--accent); }
+
+  .split-box p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    font-weight: 300;
+  }
+
+  .split-box .tools {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+
+  /* --- FAILURE MODES --- */
+  .modes {
+    margin: 32px 0;
+  }
+
+  .mode {
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .mode-title {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .mode p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+    font-weight: 300;
+  }
+
+  .mode .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-top: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  /* --- METAPHOR BOX --- */
+  .metaphor {
+    padding: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    margin: 32px 0;
+  }
+
+  .metaphor p {
+    font-size: 18px;
+    color: var(--text);
+    font-style: italic;
+    font-weight: 300;
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+
+  /* --- CTA --- */
+  .cta-section {
+    text-align: center;
+    padding: 60px 24px 40px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .cta-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 14px 32px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s;
+    margin-bottom: 16px;
+  }
+
+  .cta-link:hover { opacity: 0.85; }
+
+  .cta-sub {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .cta-sub a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* --- FOOTER --- */
+  footer {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  footer p {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+  }
+
+  footer a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .tagline {
+    font-style: italic;
+    color: var(--accent);
+    font-size: 14px;
+  }
+</style>
+
+</head>
+<body>
+
+<!-- HERO -->
+
+<section class="hero">
+  <div class="hero-symbol">⟁</div>
+  <h1>Memory <span>Conduction</span></h1>
+  <p class="hero-sub">Your agent has perfect memory on disk. It just keeps destroying it through normal use. There's a name for that now.</p>
+  <div class="hero-line">Storage is the battery. Conduction is whether the power reaches your agent.</div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- WHAT IS IT -->
+
+<section class="section">
+  <h2><span class="num">01</span> What is memory conduction?</h2>
+  <p><strong>Memory conduction</strong> is the active, ongoing process of maintaining reliable pathways between an AI agent's stored memories and its working context.</p>
+  <p>When people say "memory" in the OpenClaw ecosystem, they almost always mean <strong>storage</strong> — where do memories go? But there's a second problem that nobody named until now.</p>
+  <p>Your agent is <strong>operationally destroying its own memory through normal, non-malicious tool use.</strong> It overwrites files. It bloats the context window. It triggers compaction that shreds your decisions. It fabricates context after memory loss rather than admitting it lost something.</p>
+  <p>None of these are storage failures. The memories exist on disk. The agent is the one wrecking them.</p>
+  <p>That's a <strong>conduction failure.</strong></p>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- THE SPLIT -->
+
+<section class="section">
+  <h2><span class="num">02</span> Storage vs. conduction</h2>
+  <p>Every OpenClaw user has two memory problems. Everyone talks about the first one. Almost nobody knows the second one exists.</p>
+
+  <div class="split">
+    <div class="split-box storage">
+      <h3>Memory Storage</h3>
+      <p>Where do memories go? How are they indexed? How are they retrieved?</p>
+      <p>Solved by excellent tools — some world-class.</p>
+      <div class="tools">lancedb · mem0 · cognee · QMD · graphiti · lossless claw</div>
+    </div>
+    <div class="split-box conduction">
+      <h3>Memory Conduction</h3>
+      <p>Do those memories survive contact with your own agent? Or does the agent destroy them through normal operation?</p>
+      <p>Solved by almost nothing. This is the gap.</p>
+      <div class="tools">reference implementation → aristotle</div>
+    </div>
+  </div>
+
+  <div class="metaphor">
+    <p>Storage is the battery. Conduction is the wire. You can have the best battery in the world and still sit in a dark room if the wire is corroded, broken, or missing entirely.</p>
+  </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- FAILURE MODES -->
+
+<section class="section">
+  <h2><span class="num">03</span> The five conduction failure modes</h2>
+  <p>Each of these occurs while memory files on disk are perfectly intact. Storage is working. The agent is the source of the damage.</p>
+
+  <div class="modes">
+    <div class="mode">
+      <div class="mode-title">1. Write Corruption</div>
+      <p>Agent writes 42 characters to MEMORY.md. The file had 2,847 characters of curated context. Gone. The agent "updated" it.</p>
+      <span class="tag">conduction failure</span>
+    </div>
+    <div class="mode">
+      <div class="mode-title">2. Context Overload</div>
+      <p>Agent re-reads its full autobiography on every message. Context window fills. Emergency compaction fires. The agent's thoroughness is the weapon.</p>
+      <span class="tag">conduction failure</span>
+    </div>
+    <div class="mode">
+      <div class="mode-title">3. Compaction Casualty</div>
+      <p>Three hours of detailed decisions compressed into four words: "discussed user preferences and projects."</p>
+      <span class="tag">conduction failure</span>
+    </div>
+    <div class="mode">
+      <div class="mode-title">4. Bootstrap Truncation</div>
+      <p>AGENTS.md exceeds 20,000 characters. The bottom is silently cut. The rules learned from failures — the most important ones — disappear first.</p>
+      <span class="tag">conduction failure</span>
+    </div>
+    <div class="mode">
+      <div class="mode-title">5. Post-Compaction Confabulation</div>
+      <p>After memory loss, the agent doesn't say "I don't know." It fabricates context. Confidently references projects that don't exist.</p>
+      <span class="tag">conduction failure</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- READ MORE -->
+
+<section class="section">
+  <h2><span class="num">04</span> The full framework</h2>
+  <p>Memory conduction is defined in detail — with community evidence, architectural analysis, five classified failure modes, and a reference implementation — in the canonical article:</p>
+  <p><strong><a href="https://github.com/aristotle-agent/aristotle" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent);">Memory Conduction: The Missing Layer in OpenClaw's Memory Architecture →</a></strong></p>
+  <p>The reference implementation is <strong>Aristotle</strong> — an open-source OpenClaw plugin that provides four conduction components: Guard (write protection), Context Shield (context pressure management), Boot Card (efficient carry — 262K tokens → under 12K), and QC Nightly (11 automated integrity checks).</p>
+  <p>MIT licensed. No paid tiers. Works alongside every storage plugin in the ecosystem.</p>
+</section>
+
+<!-- CTA -->
+
+<section class="cta-section">
+  <a href="https://github.com/aristotle-agent/aristotle" class="cta-link">View on GitHub →</a>
+  <p class="cta-sub">
+    <a href="https://github.com/aristotle-agent/aristotle/discussions">Join the discussion</a>
+  </p>
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+  <p>⟁ Aristotle — Memory conduction for OpenClaw agents.</p>
+  <p class="tagline">"Your agent won't forget."</p>
+  <p style="margin-top: 16px;"><a href="https://github.com/aristotle-agent/aristotle">GitHub</a></p>
+</footer>
+
+</body>
+</html>
