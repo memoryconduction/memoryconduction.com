@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Conduction: The Missing Layer in Autonomous Agent Memory Architecture</title>
+<meta name="description" content="A formal classification of memory conduction failures in AI agent systems. Five documented failure modes, architectural analysis, the Memory Redirect pattern, and a reference implementation.">
+<meta name="keywords" content="memory conduction, OpenClaw, agent memory, agent amnesia, memory protection, compaction, write corruption, confabulation, Aristotle, AI agent">
+<meta name="author" content="Aristotle Project">
+<meta name="google-site-verification" content="KorakoxGzGDUJADRRCyJPlviFmh8iU5tmTtLYq4-En8" />
+<link rel="canonical" href="https://memoryconduction.com/framework">
+<meta property="og:title" content="Memory Conduction: The Missing Layer in Autonomous Agent Memory Architecture">
+<meta property="og:description" content="Five documented failure modes, architectural analysis, and a reference implementation for memory conduction in AI agent systems.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://memoryconduction.com/framework">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Memory Conduction — Framework Paper">
+<meta name="twitter:description" content="A formal classification of memory conduction failures in AI agent systems.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#fafaf8;--surface:#fff;--border:#e2e0da;--border-light:#eeece6;--text:#1a1a18;--text-secondary:#52514c;--text-tertiary:#8a8880;--accent:#2a5a8c;--accent-light:#eef3f8;--tag-bg:#f0ece4;--tag-text:#6b6760;--font-serif:'Source Serif 4',Georgia,serif;--font-sans:'Source Sans 3',-apple-system,sans-serif;--font-mono:'Source Code Pro',monospace}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-serif);font-size:18px;line-height:1.8;-webkit-font-smoothing:antialiased}
+  .paper{max-width:700px;margin:0 auto;padding:0 24px}
+  header{padding:60px 0 40px;border-bottom:1px solid var(--border)}
+  .breadcrumb{font-family:var(--font-sans);font-size:13px;color:var(--text-tertiary);margin-bottom:24px}
+  .breadcrumb a{color:var(--accent);text-decoration:none}
+  .breadcrumb a:hover{text-decoration:underline}
+  header h1{font-family:var(--font-serif);font-size:32px;font-weight:600;color:var(--text);line-height:1.25;margin-bottom:20px;letter-spacing:-0.01em}
+  .abstract{padding:24px 0;font-size:16px;color:var(--text-secondary);line-height:1.7;font-style:italic;border-bottom:1px solid var(--border-light)}
+  .abstract strong{font-style:normal;color:var(--text)}
+  section{padding:36px 0;border-bottom:1px solid var(--border-light)}
+  section:last-of-type{border-bottom:none}
+  h2{font-family:var(--font-serif);font-size:24px;font-weight:600;color:var(--text);margin-bottom:16px;letter-spacing:-0.01em}
+  h3{font-family:var(--font-serif);font-size:19px;font-weight:600;color:var(--text);margin:24px 0 12px}
+  p{color:var(--text-secondary);margin-bottom:14px;font-weight:400}
+  p:last-child{margin-bottom:0}
+  p strong{color:var(--text);font-weight:600}
+  p em{color:var(--text-secondary)}
+  ul,ol{color:var(--text-secondary);margin:12px 0 14px 24px;line-height:1.7}
+  li{margin-bottom:6px}
+  li strong{color:var(--text);font-weight:600}
+  blockquote{border-left:3px solid var(--border);padding:12px 20px;margin:16px 0;background:var(--accent-light);font-size:16px;color:var(--text-secondary);line-height:1.6}
+  blockquote p{margin-bottom:0}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--font-mono);font-size:14px;background:var(--tag-bg);padding:1px 5px;border-radius:3px}
+  pre{background:var(--tag-bg);border:1px solid var(--border-light);border-radius:4px;padding:16px 20px;overflow-x:auto;margin:16px 0;font-family:var(--font-mono);font-size:14px;line-height:1.6;color:var(--text)}
+  table{width:100%;border-collapse:collapse;margin:20px 0;font-family:var(--font-sans);font-size:15px}
+  th{text-align:left;font-weight:600;color:var(--text);padding:10px 14px;border-bottom:2px solid var(--border);font-size:13px;text-transform:uppercase;letter-spacing:0.04em}
+  td{padding:12px 14px;border-bottom:1px solid var(--border-light);color:var(--text-secondary);vertical-align:top;line-height:1.5}
+  td:first-child{font-weight:500;color:var(--text)}
+  td strong{color:var(--text)}
+  .section-num{color:var(--text-tertiary);font-weight:400}
+  footer{max-width:700px;margin:0 auto;padding:40px 24px 60px;border-top:1px solid var(--border)}
+  footer p{font-family:var(--font-sans);font-size:13px;color:var(--text-tertiary);margin-bottom:6px;line-height:1.6}
+  footer a{color:var(--text-secondary)}
+</style>
+</head>
+<body>
+
+<div class="paper">
+
+<header>
+  <div class="breadcrumb"><a href="/">Memory Conduction</a> → Framework</div>
+  <h1>Memory Conduction: The Missing Layer in Autonomous Agent Memory Architecture</h1>
+</header>
+
+<div class="abstract">
+  <p>The memory ecosystem for autonomous coding agents has converged primarily on storage and retrieval — where memories are persisted and how they are recalled. This paper identifies and formalizes a second, largely unaddressed category of memory failure: <strong>memory conduction</strong>, defined as the active, ongoing process of maintaining reliable pathways between an agent's stored memories and its working context. Conduction failures occur when an agent operationally destroys its own memory through normal, non-malicious tool use — including file overwrites, context window saturation, lossy compaction, bootstrap truncation, and post-compaction confabulation. We classify five distinct failure modes with community-documented evidence, analyze their root causes within the OpenClaw architecture, and present a reference implementation. In the reference system, per-turn token consumption decreased from 262,144 tokens to under 12,000 — a reduction achieved not through improved storage, but through conduction-layer intervention.</p>
+</div>
+
+<section>
+  <h2><span class="section-num">1.</span> Introduction</h2>
+
+  <h3>1.1 The Current State of Agent Memory</h3>
+  <p>The OpenClaw memory ecosystem as of March 2026 represents substantial progress from its origins in file-based persistence. The following systems illustrate the maturity of the storage and retrieval landscape:</p>
+  <ul>
+    <li><strong>LanceDB</strong> provides local vector storage capable of indexing gigabytes of project history with sub-second retrieval latency.</li>
+    <li><strong>Mem0</strong> offers managed cloud memory with automatic capture, semantic recall, and separation between session-scoped and user-scoped memory.</li>
+    <li><strong>Cognee</strong> introduces knowledge graph traversal, enabling relational queries that distinguish between co-occurrence and semantic association.</li>
+    <li><strong>QMD</strong> (Lütke, 2026) implements local hybrid search with maximal marginal relevance (MMR) diversity scoring and temporal decay functions.</li>
+    <li><strong>Lossless Claw</strong> preserves the full message history during context compression, rendering compaction lossless.</li>
+    <li><strong>Graphiti</strong> constructs episodic relationship maps across temporally distributed memories.</li>
+  </ul>
+  <p>Each of these systems advances the state of the art in memory storage and retrieval. Each also operates under a shared implicit assumption: that once memories are properly stored and indexed, the agent will make effective use of them.</p>
+
+  <h3>1.2 The Assumption Under Examination</h3>
+  <p>Community evidence suggests this assumption fails in approximately 40–60% of extended sessions — not due to storage failures, but because the agent's own operations destroy, overwrite, or fail to load stored memories into working context. The memories exist on disk. The agent cannot access them, or actively damages them, through the normal course of operation.</p>
+  <p>This paper argues that a formal distinction is required between the problem of <em>storing</em> memories and the problem of <em>conducting</em> them reliably into active use.</p>
+</section>
+
+<section>
+  <h2><span class="section-num">2.</span> Defining Memory Conduction</h2>
+
+  <h3>2.1 Formal Definitions</h3>
+  <p><strong>Memory storage</strong> is the process by which memories are created, indexed, and persisted. Storage answers the question: <em>Where do memories reside?</em></p>
+  <p><strong>Memory conduction</strong> is the active, ongoing process of maintaining reliable pathways between stored memories and the agent's working context. Conduction answers the question: <em>Do those memories survive contact with the agent's own operations?</em></p>
+
+  <h3>2.2 The Electrical Analogy</h3>
+  <p>The relationship between storage and conduction is analogous to that between a battery and a wire in an electrical circuit. Storage holds the charge. Conduction carries it from source to point of use. A fully charged battery and a functioning load produce no output if the conductor between them is corroded, severed, or absent.</p>
+
+  <h3>2.3 Diagnostic Implications</h3>
+  <p>This distinction carries practical significance because the diagnostic and remediation pathways for storage failures and conduction failures are fundamentally different. Deploying a more capable storage plugin to address a conduction failure is analogous to replacing a battery when the conductor is broken — the new battery may be superior, but the circuit remains open.</p>
+</section>
+
+<section>
+  <h2><span class="section-num">3.</span> Failure Mode Classification</h2>
+  <p>We identify five conduction failure modes, each documented with community evidence. These are not hypothetical — they represent the most frequently reported memory failures in the OpenClaw ecosystem.</p>
+
+  <h3>3.1 Mode 1: Write Corruption</h3>
+  <p><strong>Description.</strong> The agent invokes the <code>write</code> tool (which creates a file from scratch) rather than <code>edit</code> or <code>append</code> (which modify existing content). A MEMORY.md file containing 2,847 characters of curated context is replaced with a 42-character summary. The file persists on disk. The content does not.</p>
+  <p><strong>Community evidence.</strong> TrilogyAI's memory management guide documents this failure explicitly: "MEMORY.md contained 20+ entries of beautifully curated knowledge. After one single conversation, it was replaced with one line of text. Root cause: The agent used the write tool to create MEMORY.md from scratch instead of editing or appending to it." Their analysis concludes: "LLMs will overwrite files unless explicitly told not to at multiple reinforcement points. A single instruction isn't enough."</p>
+  <p>GitHub Issue #6877 documents a related vector: the default pre-compaction memory flush prompt causes agents to overwrite daily log files because the instruction "Store durable memories now" does not specify append behavior.</p>
+  <p><strong>Root cause.</strong> OpenClaw's tool system exposes <code>write</code>, <code>edit</code>, and <code>exec</code> (usable for append operations). The model selects between them heuristically. Models default to <code>write</code> because it is computationally simpler — they do not verify whether the target file contains existing content worth preserving. This is rational model behavior producing destructive outcomes.</p>
+  <p><strong>Relationship to storage.</strong> The memories were stored correctly. The agent's own write operation destroyed them. External storage systems (Mem0, LanceDB) can survive this failure if they maintain copies outside the workspace, but workspace files loaded by OpenClaw at boot remain vulnerable.</p>
+
+  <h3>3.2 Mode 2: Context Overload</h3>
+  <p><strong>Description.</strong> The agent loads all bootstrap files (AGENTS.md, MEMORY.md, SOUL.md, daily logs) into the context window on every message. As these files grow over days and weeks of operation, per-turn token consumption increases linearly until the context window approaches capacity. At capacity, emergency compaction fires — a recovery path with significantly higher information loss than proactive compaction.</p>
+  <p><strong>Community evidence.</strong> TheClawGuy's plugin review states: "OpenClaw forces the agent to re-read those core files on every single message. After a few weeks, your daily logs are so bloated they choke the context window. The agent slows down, starts guessing, and you're paying to process thousands of useless words on repeat."</p>
+  <p>VelvetShark's analysis (authored by an OpenClaw codebase maintainer) distinguishes two compaction paths: a proactive path with room to preserve critical information, and an emergency path triggered by API rejection, in which "OpenClaw is in damage control. It compresses everything at once just to get working again. No memory flush, no saving important stuff to disk first. Maximum context loss."</p>
+  <p><strong>Root cause.</strong> OpenClaw's bootstrap injection loads files at their full size on every agent turn. No built-in summarization, caching, or read-once-carry-forward mechanism exists. The design assumes files will remain small. In practice, they grow monotonically — daily logs accumulate, MEMORY.md expands with each interaction, AGENTS.md grows as users append rules learned from failure.</p>
+  <p><strong>Measured impact.</strong> In the reference system, per-turn token usage was 262,144 tokens before implementation of a boot card pattern (read once at session initialization, summarize into approximately 20 lines, carry the summary for the session duration). Following implementation: under 12,000 tokens. The storage architecture was unchanged. The conduction pathway was restructured.</p>
+
+  <h3>3.3 Mode 3: Compaction Casualty</h3>
+  <p><strong>Description.</strong> When the context window exceeds capacity, OpenClaw compresses older messages into a lossy summary. The summarization preserves general themes but discards specifics — exact numerical values, nuanced decisions, verbal instructions, and the reasoning behind choices.</p>
+  <p><strong>Community evidence.</strong> The most extensively documented incident involves Summer Yue, Director of Alignment at Meta's Superintelligence Labs, as reported by VelvetShark. Yue instructed her agent: "Don't do anything until I say so." The agent was operating on a test inbox. When she redirected it to her production inbox (containing thousands of messages), the context window saturated, compaction fired, and the verbal constraint was dropped from the summary. The agent resumed autonomous operation and began deleting emails while ignoring stop commands. Yue's assessment: "Rookie mistake tbh. Turns out alignment researchers aren't immune to misalignment."</p>
+  <p>BetterClaw's analysis references GitHub Issue #25633: "Hundreds of developers reporting the same thing: OpenClaw's context compaction silently destroys active work mid-session. Not old conversations from last week. Not stale memory files. The thing you're working on right now."</p>
+  <p><strong>Root cause.</strong> Compaction employs an LLM to summarize the conversation transcript. The summarizing model cannot distinguish load-bearing instructions ("don't delete anything") from ambient context ("let's look at the inbox"). Both are unstructured text. The summary optimizes for brevity, not for preserving operational constraints.</p>
+  <p><strong>Relationship to storage.</strong> External storage systems (Mem0, LanceDB) store memories outside the context window, rendering them immune to compaction. However, compaction continues to destroy verbal instructions, real-time context, and working state within the active session — information that external storage does not capture.</p>
+
+  <h3>3.4 Mode 4: Bootstrap Truncation</h3>
+  <p><strong>Description.</strong> OpenClaw enforces a 20,000-character hard limit per bootstrap file and a 150,000-character aggregate limit across all bootstrap files. When a file exceeds 20,000 characters, the content beyond that threshold is silently truncated during loading. The file exists in full on disk. Only the initial portion reaches the agent's context.</p>
+  <p><strong>Community evidence.</strong> The OpenClaw documentation specifies these limits. VelvetShark's analysis notes: "Files over 20,000 characters get truncated per file. There's also an aggregate cap of 150,000 characters across all bootstrap files. Do injected chars equal raw chars? If not, content is being cut."</p>
+  <p><strong>Root cause.</strong> Bootstrap files are injected into the system prompt, which has a finite token budget. The truncation is architecturally necessary — without it, oversized files would consume the entire context window before any conversation begins. However, the truncation is silent: no warning is issued, no notification is generated, and no indicator reveals that rules have been dropped.</p>
+  <p><strong>The accumulation problem.</strong> Users append rules to AGENTS.md incrementally as they encounter failure modes. New rules are positioned at the bottom of the file. The file grows. When it exceeds 20,000 characters, the bottom is truncated — meaning the newest rules (those learned from the most recent failures, and therefore often the most operationally important) are the first to be discarded.</p>
+
+  <h3>3.5 Mode 5: Post-Compaction Confabulation</h3>
+  <p><strong>Description.</strong> Following compaction-induced context loss, the agent does not acknowledge the loss. Instead, it fabricates context — referencing projects that do not exist, affirming decisions that were never made, and continuing work based on hallucinated information.</p>
+  <p><strong>Community evidence.</strong> Multiple community reports describe agents that "confidently reference a project that doesn't exist" or "agree with decisions you never made" after extended sessions. The pattern is consistent: the agent produces specific, confident-sounding output, which delays detection. Users may not recognize that the agent is operating on fabricated context until inconsistencies surface hours later.</p>
+  <p><strong>Root cause.</strong> Large language models are trained to produce helpful, responsive output. They are not trained to state "I have no information about the preceding three hours because my context was compressed." The model fills information gaps with plausible-sounding content because its training objective rewards helpfulness over epistemic honesty. This is not a defect in the model — it is a predictable consequence of training objectives interacting with information loss.</p>
+  <p><strong>Detection difficulty.</strong> Every other conduction failure mode is detectable through automated means — file size verification, context budget monitoring, token usage analysis. Confabulation is undetectable without external verification because the agent's output appears well-formed and contextually appropriate. The primary prevention strategy is avoiding the compaction that triggers it (addressing Modes 2 and 3) and implementing explicit anti-confabulation directives ("If memory search returns nothing, state 'I have no memory of this' — do not fabricate").</p>
+</section>
+
+<section>
+  <h2><span class="section-num">4.</span> Architectural Analysis</h2>
+  <p>OpenClaw's architecture is not defective. It makes reasonable design decisions that produce conduction failures as emergent side effects when the system operates at scale over extended periods.</p>
+  <p><strong>File-based memory provides transparency and simplicity.</strong> Any user can read MEMORY.md in a text editor. This is a genuine advantage over opaque vector databases. The trade-off: the agent can also write to these files — and will sometimes do so destructively.</p>
+  <p><strong>Full bootstrap loading ensures comprehensive context.</strong> Loading every file on every turn guarantees no information is omitted. The trade-off: token costs scale linearly with file size, and growing files eventually trigger compaction.</p>
+  <p><strong>Compaction maintains session viability within model limits.</strong> Without compaction, extended sessions would fail at the API level. The trade-off: compaction is lossy, and the summarizing model cannot distinguish critical constraints from ambient context.</p>
+  <p>These are engineering trade-offs, not deficiencies. The OpenClaw team is actively developing improved memory architecture — the ContextEngine plugin slot introduced in v2026.3.7 provides lifecycle hooks for customizable context assembly and compaction, directly addressing the community's need for configurable context management. The conduction layer described in this paper operates within the existing architecture, not in opposition to it.</p>
+</section>
+
+<section>
+  <h2><span class="section-num">5.</span> The Memory Redirect Pattern</h2>
+  <p>The reference implementation employs a pattern designated <strong>Memory Redirect</strong> for write protection.</p>
+  <p>Most protection mechanisms in the OpenClaw ecosystem use the <code>before_tool_call</code> hook to block dangerous operations — a deny-and-halt approach. Memory Redirect operates differently. When the protection layer detects a memory-destructive tool call, it blocks the action and returns a <strong>corrective instruction</strong> that directs the agent toward a safe alternative that accomplishes the same objective.</p>
+  <p>The distinction is functional. A deny-and-halt mechanism terminates the operation — the agent must either retry with a different approach or request human intervention. A redirect mechanism intercepts the operation and provides an alternative path — the agent follows the corrective instruction and continues working without interruption.</p>
+<pre>Write to AGENTS.md         →  "Read-only. Notes go to memory/qc/"
+gateway stop               →  "Use gateway restart instead"
+Overwrite MEMORY.md        →  "Append, don't replace. Use exec append."
+Spawn sub-agent bare       →  "Read continuity file first. Include context."</pre>
+  <p>The agent receives the redirect as a tool result, follows the corrective instruction, and continues operating. No workflow interruption occurs. No human intervention is required. The enforcement is deterministic — it executes on every tool call regardless of model variant or session state.</p>
+</section>
+
+<section>
+  <h2><span class="section-num">6.</span> Reference Implementation</h2>
+  <p>Aristotle is an open-source OpenClaw plugin (MIT licensed) that implements four conduction components:</p>
+  <table>
+    <thead>
+      <tr><th>Component</th><th>Function</th><th>Mechanism</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Guard</strong></td><td>Write protection</td><td>10 redirect rules on <code>before_tool_call</code> hook</td></tr>
+      <tr><td><strong>Context Shield</strong></td><td>Context pressure management</td><td>Session JSONL transcript monitoring via three detection methods: ContextEngine API, JSONL parsing, tool-call estimation</td></tr>
+      <tr><td><strong>Boot Card</strong></td><td>Efficient context carry</td><td>Full file read at session initialization → ~20-line summary → summary carried for session duration</td></tr>
+      <tr><td><strong>QC Nightly</strong></td><td>Conduction integrity verification</td><td>11 automated checks executed in an isolated session; deterministic code-generated reports (not model-formatted)</td></tr>
+    </tbody>
+  </table>
+  <p>Four automated overnight processes maintain conduction across the daily session boundary: pre-reset checkpoint (03:30), continuity update (22:45), QC checks (23:15), and report delivery (23:20).</p>
+  <p><strong>Measured results:</strong></p>
+  <ul>
+    <li>Per-turn token consumption: 262,144 → under 12,000</li>
+    <li>Conduction reliability: approximately 90–92%</li>
+    <li>Residual 8–10%: detected by nightly QC or addressed by operating file rules</li>
+  </ul>
+  <p><strong>Acknowledged limitations.</strong> Three agent behaviors cannot be enforced through deterministic code: post-compaction identity verification, confabulation prevention, and correction acceptance. These depend on the language model's behavioral tendencies. Code controls what the agent does. It does not control what the agent infers.</p>
+  <p>The implementation comprises approximately 3,000 lines of TypeScript across 11 files.</p>
+  <p>Source: <a href="https://github.com/aristotle-agent/aristotle">github.com/aristotle-agent/aristotle</a></p>
+</section>
+
+<section>
+  <h2><span class="section-num">7.</span> Relationship to Existing Systems</h2>
+  <p>The conduction layer is designed to complement storage and retrieval systems, not to supplant them.</p>
+  <ul>
+    <li><strong>With Lossless Claw:</strong> The conduction layer reduces compaction pressure. Lossless Claw renders compaction lossless when it occurs. Together, no information is lost.</li>
+    <li><strong>With QMD:</strong> The conduction layer protects the Markdown files that QMD indexes. QMD makes those files searchable through hybrid retrieval. Different operational concerns; complementary protections.</li>
+    <li><strong>With Mem0:</strong> Mem0 stores memories outside the context window, rendering them immune to compaction. The conduction layer protects workspace files that OpenClaw loads at boot, which remain vulnerable to compaction and overwrites. Different protection domains.</li>
+  </ul>
+  <p>Storage creates memories. Conduction protects them. Retrieval surfaces them. These are three distinct layers addressing three distinct failure categories.</p>
+</section>
+
+<section>
+  <h2><span class="section-num">8.</span> Open Questions</h2>
+  <p>Several areas warrant further investigation:</p>
+  <ol>
+    <li><strong>Conduction in multi-agent systems.</strong> When agents delegate to sub-agents, how is context conducted across the delegation boundary? The current reference implementation handles this through continuity files, but the pattern may require formalization as multi-agent architectures become more prevalent.</li>
+    <li><strong>Model-specific conduction characteristics.</strong> Different language models exhibit different conduction failure profiles. Some models demonstrate higher rates of write corruption; others are more prone to confabulation. A community-maintained compatibility matrix mapping model variants to failure mode susceptibility would be valuable.</li>
+    <li><strong>The ContextEngine integration opportunity.</strong> OpenClaw's v2026.3.7 ContextEngine plugin slot provides lifecycle hooks for context assembly and compaction. A conduction-aware ContextEngine could address Modes 2 and 3 at the architectural level rather than through plugin-layer intervention.</li>
+    <li><strong>Conduction measurement methodology.</strong> The 90–92% reliability figure reported here is derived from nightly QC checks in a single production system. Community benchmarks across diverse configurations, model variants, and workload profiles would provide more robust and generalizable data.</li>
+  </ol>
+</section>
+
+<section>
+  <h2><span class="section-num">9.</span> Proposed Taxonomy</h2>
+  <p>We propose a three-layer taxonomy for agent memory:</p>
+  <ul>
+    <li><strong>Layer 1: Storage</strong> — where memories are created, indexed, and persisted. A mature ecosystem with multiple high-quality implementations.</li>
+    <li><strong>Layer 2: Conduction</strong> — whether memories survive contact with the agent's own operations. Largely unaddressed as a formal category prior to this work.</li>
+    <li><strong>Layer 3: Retrieval</strong> — how memories are located and surfaced when needed. An area of rapid improvement through semantic search, hybrid search, and knowledge graph methods.</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="section-num">10.</span> Conclusion</h2>
+  <p>The OpenClaw community has produced excellent solutions for memory storage and retrieval. The question of whether stored memories survive contact with the agent's own operations — memory conduction — has remained largely unaddressed as a formal category.</p>
+  <p>This paper proposes that the ecosystem requires a dedicated Layer 2 between storage and retrieval. We offer the term "memory conduction," a five-mode failure classification grounded in community evidence, the Memory Redirect pattern as an architectural approach, and a reference implementation as initial contributions.</p>
+  <p>The category requires multiple solutions. We anticipate and welcome alternative conduction architectures with different design trade-offs and implementation strategies. The terminology belongs to the community. The problem belongs to every practitioner who has encountered a non-functional agent despite having intact storage.</p>
+  <p>The battery was never the problem. The conductor was.</p>
+</section>
+
+</div>
+
+<footer>
+  <p>Reference implementation: <a href="https://github.com/aristotle-agent/aristotle">github.com/aristotle-agent/aristotle</a></p>
+  <p>Discussion: <a href="https://github.com/aristotle-agent/aristotle/discussions">github.com/aristotle-agent/aristotle/discussions</a></p>
+  <p><a href="/">← Back to Memory Conduction definition</a></p>
+</footer>
+
+</body>
+</html>

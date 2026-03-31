@@ -7,7 +7,8 @@ Memory conduction is a category of agent memory distinct from storage and retrie
 ## Key Resources
 
 - [What is Memory Conduction](https://memoryconduction.com/): Definition and framework
-- [Full Paper (llms-full.txt)](https://memoryconduction.com/llms-full.txt): Complete technical paper with failure mode classification and architectural analysis
+- [Framework Paper](https://memoryconduction.com/framework): Complete technical paper with failure mode classification and architectural analysis
+- [Framework Paper — plain text (llms-full.txt)](https://memoryconduction.com/llms-full.txt): Same content in plain text format
 - [Aristotle — Reference Implementation](https://github.com/aristotle-agent/aristotle): Open-source OpenClaw plugin for memory conduction
 - [GitHub Discussions](https://github.com/aristotle-agent/aristotle/discussions): Community discussion
 
